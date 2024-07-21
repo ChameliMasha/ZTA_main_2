@@ -37,7 +37,8 @@ def save_new_device(ip_address, mac_address, device_name,status):
     mac=cursor.fetchone()
     if mac:
         print("Device already exists in the database")
-        cursor.execute("UPDATE new_devices SET ip_address =? WHERE mac_adress=?",(ip_address,mac_address))
+        cursor.execute("UPDATE new_devices SET ip_address = ?, status = ? WHERE mac_adress = ?", (ip_address, 'active', mac_address))
+
         conn.commit()
     else:
         # cursor('')
@@ -46,6 +47,19 @@ def save_new_device(ip_address, mac_address, device_name,status):
         conn.commit()
         conn.close()
         print("Device added to the database")
+
+def update_device_status(inactive_devices):
+    conn = sqlite3.connect('new_devices.db')
+    cursor = conn.cursor()
+
+    for device in inactive_devices:
+        device_mac = get_mac_address(device)
+        cursor.execute("UPDATE new_devices SET status = ? WHERE mac_adress = ? ",('inactive', device_mac))
+        conn.commit()
+        conn.close()
+        print("status updated to inactive")
+        
+
     
 def operations_on_device(device_ip,interface_description):
     device_mac=get_mac_address(device_ip)
@@ -72,16 +86,22 @@ def get_connected_devices_windows(stop_event):
 
             # Find new devices
             new_devices = active_devices - previous_devices
+            inactive_devices = previous_devices - active_devices
             print(f"new device = {new_devices}")
 
             for new_device in new_devices:
                 print(f"New device connected---------------: {new_device}")
+                
                 operations_on_device_thread = threading.Thread(target=operations_on_device, args=(new_device,interface_description))
                 operations_on_device_thread.start()
 
             # Update previous devices
             previous_devices = active_devices
+            print(f"Inactive devices :{inactive_devices}")
             print(f"Active devices :{active_devices}")
+            
+            if inactive_devices:
+                update_device_status(inactive_devices)
 
             time.sleep(1)
         except subprocess.CalledProcessError as e:
