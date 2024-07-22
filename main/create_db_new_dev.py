@@ -1,24 +1,17 @@
 import sqlite3
-import json
 
 # Initialize the database connection
 conn = sqlite3.connect('new_devices.db')
 cursor = conn.cursor()
 
-
-
-# Update the connected_devices field in the database with the JSON string
-# mac_address = 'ae:bc:da:7a:65:cb'
+# Step 1: Create a new table with the desired schema
 cursor.execute(
-    "DELETE FROM new_devices WHERE mac_adress = ?",('30:d1:6b:40:df:5a',) 
-)
+    "DELETE FROM url_alerts_new")
 
 
 
+# Commit the changes
 conn.commit()
 
-
-
-
-# Close the database connection
+# Close the connection
 conn.close()

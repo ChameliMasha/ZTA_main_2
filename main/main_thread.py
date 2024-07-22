@@ -6,6 +6,7 @@ import sqlite3
 from check_open_por import scan_ports
 from illagel_and_api_2 import check_illegal
 from check_vendor import get_vendor
+from main_after_30 import monitor_api
 
 def ping_device(ip):
     try:
@@ -48,6 +49,7 @@ def save_new_device(ip_address, mac_address, device_name,status):
         conn.close()
         print("Device added to the database")
 
+
 def update_device_status(inactive_devices):
     conn = sqlite3.connect('new_devices.db')
     cursor = conn.cursor()
@@ -59,14 +61,15 @@ def update_device_status(inactive_devices):
         conn.close()
         print("status updated to inactive")
         
-
     
 def operations_on_device(device_ip,interface_description):
     device_mac=get_mac_address(device_ip)
     save_new_device(device_ip,device_mac, '','active' )
-    check_illegal(interface_description,device_ip,device_mac)
+    # check_illegal(interface_description,device_ip,device_mac)
     scan_ports(device_ip)
     get_vendor(device_mac)
+    time.sleep(10)
+    monitor_api(interface_description,device_mac)
 
 
 def get_connected_devices_windows(stop_event):
@@ -82,7 +85,7 @@ def get_connected_devices_windows(stop_event):
 
             # Confirm connection status by pinging each IP address
             
-            active_devices = {ip for ip in connected_devices if ping_device(ip)}
+            active_devices = {ip for ip in connected_devices}
 
             # Find new devices
             new_devices = active_devices - previous_devices
