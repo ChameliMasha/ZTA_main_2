@@ -24,6 +24,7 @@ def ssh_connect(host, username, password, result, lock):
         print("**** Attempting to connect - Rate limiting on server ****")
     finally:
         ssh_client.close()
+        
 
 def get_device(device):
     logging.getLogger('paramiko.transport').addHandler(NullHandler())

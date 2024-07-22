@@ -68,7 +68,7 @@ def monitor_api(interface_description,device_mac):
     ]
     
     sniff(iface=interface_description, prn=lambda x: process_packet(x, device_mac, collected_packets, blacklisted_macs,illegal_connections), store=0, timeout=20)
-    if illegal_connections:
-        print("jjjjjjj")
+    # if illegal_connections:
+    #     print("jjjjjjj")
         
     

@@ -11,7 +11,7 @@ from main_after_30 import monitor_api
 def ping_device(ip):
     try:
         # Ping the device with a timeout of 1 second
-        result = subprocess.run(["ping", "-n", "1", "-w", "1000", ip], capture_output=True, encoding='utf-8')
+        result = subprocess.run(["ping", "-n", "1", "-w", "4000", ip], capture_output=True, encoding='utf-8')
         return 'TTL=' in result.stdout
     except subprocess.CalledProcessError:
         return False
@@ -65,10 +65,10 @@ def update_device_status(inactive_devices):
 def operations_on_device(device_ip,interface_description):
     device_mac=get_mac_address(device_ip)
     save_new_device(device_ip,device_mac, '','active' )
-    # check_illegal(interface_description,device_ip,device_mac)
+    check_illegal(interface_description,device_ip,device_mac)
     scan_ports(device_ip)
     get_vendor(device_mac)
-    time.sleep(10)
+    # time.sleep(10)
     monitor_api(interface_description,device_mac)
 
 
@@ -85,7 +85,7 @@ def get_connected_devices_windows(stop_event):
 
             # Confirm connection status by pinging each IP address
             
-            active_devices = {ip for ip in connected_devices}
+            active_devices = {ip for ip in connected_devices if ping_device(ip)}
 
             # Find new devices
             new_devices = active_devices - previous_devices
